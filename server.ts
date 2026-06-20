@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import fs from "fs";
 import { createServer as createViteServer } from "vite";
+import { Jimp } from "jimp";
 
 async function startServer() {
   const app = express();
@@ -12,7 +13,7 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
   // API endpoint to save the uploaded image to the workspace file system
-  app.post("/api/save-portrait", (req, res) => {
+  app.post("/api/save-portrait", async (req, res) => {
     try {
       const { image } = req.body;
       if (!image) {
@@ -31,10 +32,18 @@ async function startServer() {
 
       // Verify the output exists and write back to workspace file under src/components/ksu_portrait_real.jpg
       const targetPath = path.join(process.cwd(), "src", "components", "ksu_portrait_real.jpg");
-      fs.writeFileSync(targetPath, buffer);
-
-      console.log(`[API] Successfully saved uploaded portrait to ${targetPath}. Mime: ${mimeType}, Size: ${buffer.length} bytes`);
-      return res.json({ success: true, mimeType, size: buffer.length });
+      
+      try {
+        const img = await Jimp.read(buffer);
+        const jpegBuffer = await img.getBuffer("image/jpeg");
+        fs.writeFileSync(targetPath, jpegBuffer);
+        console.log(`[API] Successfully converted & saved uploaded portrait as JPEG to ${targetPath}. Src Mime: ${mimeType}, Size: ${jpegBuffer.length} bytes`);
+        return res.json({ success: true, mimeType: "image/jpeg", size: jpegBuffer.length });
+      } catch (jimpErr) {
+        console.warn("[API WARNING] Jimp failed to process image. Falling back to direct write.", jimpErr);
+        fs.writeFileSync(targetPath, buffer);
+        return res.json({ success: true, mimeType, size: buffer.length });
+      }
     } catch (err: any) {
       console.error("[API ERROR] Failed to save portrait:", err);
       return res.status(500).json({ error: err.message || "Internal server error" });

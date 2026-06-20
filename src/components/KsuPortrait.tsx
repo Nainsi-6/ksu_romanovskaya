@@ -132,13 +132,32 @@ export default function KsuPortrait({ className = "", type = "hero", aspectClass
       ) : (
         /* High-contrast clinical error interface if image fails to load (Requirement 6) */
         <div className="absolute inset-0 bg-red-50 flex flex-col items-center justify-center p-6 text-center select-text z-50">
-          <AlertCircle className="w-10 h-10 text-red-600 mb-2" />
-          <span className="font-sans font-extrabold text-[#BE1D35] text-xs uppercase tracking-widest">
+          <AlertCircle className="w-8 h-8 text-red-600 mb-1.5" />
+          <span className="font-sans font-extrabold text-[#BE1D35] text-[10px] uppercase tracking-widest">
             Portrait Load Error
           </span>
-          <p className="font-sans text-[10px] text-slate-700 mt-1.5 max-w-[180px] leading-normal font-semibold">
-            Unable to render local build portrait. Click the camera icon below to upload a fresh image.
+          <p className="font-sans text-[9px] text-slate-700 mt-1 max-w-[180px] leading-normal font-semibold">
+            Unable to render local build portrait.
           </p>
+          <div className="flex gap-1.5 mt-2.5">
+            <button
+              onClick={triggerUpload}
+              className="px-2 py-1 bg-clinical-crimson text-white text-[8px] hover:bg-[#A3182D] transition-colors rounded font-sans tracking-wider font-bold uppercase cursor-pointer"
+            >
+              Upload
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                localStorage.removeItem("ksu_portrait_real");
+                setPortraitSrc(ksuPortrait);
+                setLoadError(false);
+              }}
+              className="px-2 py-1 bg-white text-slate-700 text-[8px] hover:bg-slate-100 transition-colors border border-slate-200 rounded font-sans tracking-wider font-bold uppercase cursor-pointer"
+            >
+              Reset
+            </button>
+          </div>
         </div>
       )}
 
