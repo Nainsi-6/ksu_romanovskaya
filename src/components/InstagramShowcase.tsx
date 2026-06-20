@@ -75,7 +75,7 @@ export default function InstagramShowcase() {
         </div>
 
         {/* 3-column Grid display */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 items-stretch">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 items-stretch">
           {posts.map((post, index) => (
             <motion.a
               initial={{ opacity: 0, y: 20 }}
@@ -86,53 +86,53 @@ export default function InstagramShowcase() {
               href="https://instagram.com/ksu_romanovskaya"
               target="_blank"
               rel="noopener noreferrer"
-              className="group aspect-square relative overflow-hidden rounded-2xl bg-white border border-slate-200 flex flex-col justify-between p-4 md:p-6 text-left select-none cursor-pointer duration-300 shadow-md"
+              className="group relative overflow-hidden rounded-2xl bg-white border border-slate-200 flex flex-col justify-between p-3.5 xs:p-4 md:p-6 text-left select-none cursor-pointer duration-300 shadow-md h-full min-h-[210px] xs:min-h-[235px] sm:min-h-[250px] md:min-h-[280px]"
             >
               {/* Crimson border on hover */}
               <div className="absolute inset-0 border-2 border-transparent group-hover:border-clinical-crimson/30 rounded-2xl transition-all duration-300 pointer-events-none" />
 
               {/* Tag header */}
-              <div className="flex justify-between items-center relative z-10">
-                <span className="text-[9px] tracking-widest font-sans font-bold text-clinical-crimson uppercase bg-slate-50 border border-slate-200 px-2.5 py-0.5 rounded-full">
+              <div className="flex justify-between items-center relative z-10 gap-1.5">
+                <span className="text-[7.5px] xs:text-[9px] tracking-wider xs:tracking-widest font-sans font-bold text-clinical-crimson uppercase bg-slate-50 border border-slate-200 px-2 xs:px-2.5 py-0.5 rounded-full truncate max-w-[80%]">
                   {post.topic}
                 </span>
-                <span className="text-slate-400 group-hover:text-clinical-crimson transition-colors duration-300">
-                  <Instagram className="w-4 h-4 text-clinical-crimson" />
+                <span className="text-slate-400 group-hover:text-clinical-crimson transition-colors duration-300 shrink-0">
+                  <Instagram className="w-3.5 h-3.5 xs:w-4 xs:h-4 text-clinical-crimson" />
                 </span>
               </div>
 
               {/* Title Copy */}
-              <div className="space-y-1.5 relative z-10 my-auto">
-                <h3 className="font-serif text-base md:text-lg lg:text-xl text-slate-900 font-bold leading-snug group-hover:text-clinical-crimson transition-colors duration-300">
+              <div className="space-y-1.5 relative z-10 my-3">
+                <h3 className="font-serif text-[11px] xs:text-xs sm:text-sm md:text-lg lg:text-xl text-slate-900 font-bold leading-snug group-hover:text-clinical-crimson transition-colors duration-300 line-clamp-2 md:line-clamp-3">
                   {post.title}
                 </h3>
-                <p className="font-sans text-[10px] md:text-xs text-slate-600 tracking-wide font-normal line-clamp-2">
+                <p className="font-sans text-[9px] xs:text-[10px] sm:text-xs text-slate-600 tracking-wide font-normal line-clamp-2 leading-relaxed">
                   {post.tagline}
                 </p>
               </div>
 
               {/* Engagement details */}
-              <div className="flex items-center justify-between border-t border-slate-150 pt-2.5 mt-auto relative z-10">
-                <span className="text-[9px] font-mono text-slate-500 font-medium">
+              <div className="flex items-center justify-between border-t border-slate-150 pt-2 relative z-10 mt-auto">
+                <span className="text-[8px] xs:text-[9px] font-mono text-slate-500 font-medium truncate max-w-[50%]">
                   @ksu_romanovskaya
                 </span>
                 
-                <div className="flex items-center gap-2.5 text-slate-600 text-[10px] font-sans font-semibold">
-                  <span className="flex items-center gap-1">
-                    <Heart className="w-3 h-3 text-clinical-crimson fill-clinical-crimson" /> {post.likes}
+                <div className="flex items-center gap-1.5 xs:gap-2.5 text-slate-600 text-[8px] xs:text-[10px] font-sans font-semibold shrink-0">
+                  <span className="flex items-center gap-0.5 xs:gap-1">
+                    <Heart className="w-2.5 h-2.5 xs:w-3 xs:h-3 text-clinical-crimson fill-clinical-crimson" /> {post.likes}
                   </span>
-                  <span className="flex items-center gap-1">
-                    <MessageCircle className="w-3 h-3 text-slate-500" /> {post.comments}
+                  <span className="flex items-center gap-0.5 xs:gap-1">
+                    <MessageCircle className="w-2.5 h-2.5 xs:w-3 xs:h-3 text-slate-500" /> {post.comments}
                   </span>
                 </div>
               </div>
 
               {/* Full overlay with arrow key */}
               <div className="absolute inset-0 bg-slate-50/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2 z-20">
-                <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center border border-clinical-crimson text-clinical-crimson group-hover:bg-clinical-crimson group-hover:text-white transition-all shadow-md">
-                  <ArrowUpRight className="w-5 h-5 pointer-events-none" />
+                <div className="w-8 h-8 xs:w-10 xs:h-10 rounded-full bg-white flex items-center justify-center border border-clinical-crimson text-clinical-crimson group-hover:bg-clinical-crimson group-hover:text-white transition-all shadow-md">
+                  <ArrowUpRight className="w-4 h-4 xs:w-5 xs:h-5 pointer-events-none" />
                 </div>
-                <span className="text-slate-900 text-[10px] tracking-widest uppercase font-sans font-bold mt-1">
+                <span className="text-slate-900 text-[8px] xs:text-[10px] tracking-widest uppercase font-sans font-bold mt-1 text-center px-2">
                   Read Sourced Entry
                 </span>
               </div>

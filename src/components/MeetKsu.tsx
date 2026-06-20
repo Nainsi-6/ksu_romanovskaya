@@ -41,25 +41,25 @@ export default function MeetKsu({ onLearnMoreClick }: MeetKsuProps) {
           
           {/* Left Column (Scientific Clinical Vector - Replacing Doctor Photo entirely!) */}
           <div className="lg:col-span-4 select-none relative">
-            <div className="absolute -inset-4 rounded-3xl border border-slate-200 bg-slate-50/50 -z-10" />
+            <div className="absolute -inset-2 sm:-inset-4 rounded-3xl border border-slate-200 bg-slate-50/50 -z-10" />
             
             {/* Clinical Infographic Body Card */}
-            <div className="p-6 rounded-2xl bg-white border border-slate-150 shadow-xl space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                <div className="flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-clinical-crimson animate-pulse" />
-                  <span className="text-[10px] tracking-widest font-sans font-bold text-slate-800 uppercase">
+            <div className="p-4 sm:p-6 rounded-2xl bg-white border border-slate-150 shadow-md sm:shadow-xl space-y-4 sm:space-y-6">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3 sm:pb-4">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <Activity className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-clinical-crimson animate-pulse" />
+                  <span className="text-[9px] sm:text-[10px] tracking-wider sm:tracking-widest font-sans font-bold text-slate-800 uppercase">
                     BIOMETRIC INTERDEPENDENCE
                   </span>
                 </div>
-                <span className="text-[9px] font-sans text-clinical-crimson font-bold bg-clinical-crimson/5 px-2 py-0.5 rounded-full uppercase border border-clinical-crimson/10">
+                <span className="text-[8px] sm:text-[9px] font-sans text-clinical-crimson font-bold bg-clinical-crimson/5 px-2 py-0.5 rounded-full uppercase border border-clinical-crimson/10">
                   CLINICAL MODEL
                 </span>
               </div>
 
               {/* Majestic pure-SVG medical vector showing Gut-Skin-Hormone Axis */}
-              <div className="bg-slate-50 rounded-xl p-4 flex flex-col items-center justify-center border border-slate-100">
-                <svg viewBox="0 0 160 160" className="w-full max-w-[200px]" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div className="bg-slate-50 rounded-xl p-2.5 sm:p-4 flex flex-col items-center justify-center border border-slate-100">
+                <svg viewBox="0 0 160 160" className="w-full max-w-[125px] xs:max-w-[145px] sm:max-w-[180px] md:max-w-[200px]" fill="none" xmlns="http://www.w3.org/2000/svg">
                   {/* Concentric rings of systemic medicine */}
                   <circle cx="80" cy="80" r="70" stroke="#E2E8F0" strokeWidth="1" strokeDasharray="3 3"/>
                   <circle cx="80" cy="80" r="45" stroke="#E2E8F0" strokeWidth="1"/>
@@ -89,19 +89,19 @@ export default function MeetKsu({ onLearnMoreClick }: MeetKsuProps) {
               </div>
 
               {/* Infographic metadata list */}
-              <div className="space-y-3 pt-2">
-                <div className="flex items-start gap-2.5">
+              <div className="space-y-2.5 sm:space-y-3 pt-1.5 sm:pt-2">
+                <div className="flex items-start gap-2 sm:gap-2.5">
                   <CheckCircle2 className="w-3.5 h-3.5 text-clinical-crimson shrink-0 mt-0.5" />
                   <div>
                     <h4 className="text-xs font-bold text-slate-800">Root-Cause Restoration</h4>
-                    <p className="text-[10px] text-slate-500">Targeting gut microflora & insulin kinetics to calm acne flareups.</p>
+                    <p className="text-[10px] text-slate-500 leading-normal">Targeting gut microflora & insulin kinetics to calm acne flareups.</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-2.5">
+                <div className="flex items-start gap-2 sm:gap-2.5">
                   <CheckCircle2 className="w-3.5 h-3.5 text-clinical-crimson shrink-0 mt-0.5" />
                   <div>
                     <h4 className="text-xs font-bold text-slate-800">Physiological Adaptation</h4>
-                    <p className="text-[10px] text-slate-500">Stabilizing hormone conversions instead of applying cosmetic masks.</p>
+                    <p className="text-[10px] text-slate-500 leading-normal">Stabilizing hormone conversions instead of applying cosmetic masks.</p>
                   </div>
                 </div>
               </div>

@@ -95,19 +95,19 @@ export default function Hero({ onExploreClick, onBookClick }: HeroProps) {
         <div className="lg:col-span-5 flex flex-col items-center justify-center order-1 lg:order-2 select-none relative pb-6 lg:pb-0 w-full">
           
           {/* Subtle rose backdrop illumination designed for her custom red backdrop headshot */}
-          <div className="absolute w-72 h-72 md:w-96 md:h-96 bg-clinical-crimson/10 -z-10 blur-3xl rounded-full" />
+          <div className="absolute w-56 h-56 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-clinical-crimson/10 -z-10 blur-3xl rounded-full" />
           
           {/* Beautiful circular image frame container */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
-            className="w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 relative p-2 rounded-full border-2 border-slate-200/80 bg-white/50 backdrop-blur-sm shadow-xl flex items-center justify-center"
+            className="w-48 h-48 xs:w-56 xs:h-56 sm:w-72 sm:h-72 md:w-80 md:h-80 lg:w-96 lg:h-96 relative p-1.5 xs:p-2 rounded-full border border-slate-250/80 bg-white/50 backdrop-blur-sm shadow-xl flex items-center justify-center"
           >
             <KsuPortrait
               type="hero"
               aspectClass="w-full h-full"
-              className="w-full h-full rounded-full ring-4 ring-white shadow-2xl"
+              className="w-full h-full rounded-full ring-2 xs:ring-4 ring-white shadow-2xl"
             />
           </motion.div>
           
