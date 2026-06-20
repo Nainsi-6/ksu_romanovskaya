@@ -1,0 +1,6 @@
+{
+  "name": "Ksu Romanovskaya Balance & Beauty",
+  "description": "Premium luxury editorial personal brand website for Ksu Romanovskaya, Physician Assistant, Nutrition Consultant, and Dermatology Assistant based in Toronto.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
