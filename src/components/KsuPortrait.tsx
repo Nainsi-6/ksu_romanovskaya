@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { Camera, AlertCircle } from "lucide-react";
+import ksuPortrait from "./ksu_portrait_real.jpg";
 
 interface KsuPortraitProps {
   className?: string;
@@ -7,18 +9,52 @@ interface KsuPortraitProps {
 }
 
 export default function KsuPortrait({ className = "", type = "hero", aspectClass = "aspect-square" }: KsuPortraitProps) {
-  const [portraitSrc, setPortraitSrc] = useState<string | null>(null);
+  const [portraitSrc, setPortraitSrc] = useState<string>(ksuPortrait);
+  const [loadError, setLoadError] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Auto-sync local storage image to server disk during development/preview on load
   useEffect(() => {
-    // Dynamically fetch the uploaded image from localStorage if available
-    const saved = localStorage.getItem("ksu_portrait_real");
-    if (saved) {
+    let saved = localStorage.getItem("ksu_portrait_real");
+    
+    // Auto-clean 1x1 transparent dummy and any small/corrupted base64 placeholders
+    if (saved && saved.length < 5000) {
+      console.log("[KsuPortrait] Cleaning up corrupt/dummy portrait from localStorage");
+      localStorage.removeItem("ksu_portrait_real");
+      saved = null;
+    }
+    
+    // In dev mode, if the user had a custom uploaded photo in localStorage,
+    // sync it immediately to the local server disk so it is saved in ksu_portrait_real.jpg
+    if (saved && import.meta.env.DEV) {
+      console.log("[DEV] Found saved portrait in localStorage, syncing to server disk...");
+      fetch("/api/save-portrait", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: saved }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            console.log("[DEV] Successfully synced ksu_portrait_real.jpg to server disk!");
+            // Use the freshly synced base64 to ensure instant rendering
+            if (saved) setPortraitSrc(saved);
+          }
+        })
+        .catch((err) => {
+          console.error("[DEV] Failed to sync portrait to disk:", err);
+        });
+    } else if (saved) {
+      // In production / fallback, if they customized it on this device, let them see it
       setPortraitSrc(saved);
     }
 
     const handlePortraitUpdate = () => {
       const updated = localStorage.getItem("ksu_portrait_real");
-      setPortraitSrc(updated);
+      if (updated) {
+        setPortraitSrc(updated);
+        setLoadError(false);
+      }
     };
 
     window.addEventListener("ksu_portrait_updated", handlePortraitUpdate);
@@ -27,84 +63,105 @@ export default function KsuPortrait({ className = "", type = "hero", aspectClass
     };
   }, []);
 
+  // Handle uploading and writing a new file
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64Data = reader.result as string;
+      
+      // Save locally to localStorage so it is available across sessions on the device
+      localStorage.setItem("ksu_portrait_real", base64Data);
+      setPortraitSrc(base64Data);
+      setLoadError(false);
+
+      // Instantly dispatch event
+      window.dispatchEvent(new Event("ksu_portrait_updated"));
+
+      // Sync to the workspace disk back-end server if we are running in dev mode
+      if (import.meta.env.DEV) {
+        console.log("[DEV] Syncing newly chosen portrait to server disk...");
+        fetch("/api/save-portrait", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: base64Data }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              console.log("[DEV] Successfully wrote new portrait to ksu_portrait_real.jpg!");
+            }
+          })
+          .catch((err) => {
+            console.error("[DEV] Server upload failed:", err);
+          });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const triggerUpload = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
-    <div className={`relative overflow-hidden group rounded-full ${aspectClass} ${className} bg-white shadow-xl flex items-center justify-center border-4 border-white`}>
-      {portraitSrc ? (
-        // Displays Ksu's actual photo inside a perfect circle
+    <div className={`relative overflow-hidden group rounded-full ${aspectClass} ${className} bg-slate-50 shadow-xl flex items-center justify-center border-4 border-white`}>
+      {/* Hidden Native File Upload Control */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/*"
+        className="hidden"
+      />
+
+      {/* Actual Portrait Image */}
+      {!loadError ? (
         <img
           src={portraitSrc}
           alt="Ksu Romanovskaya clinical headshot"
           referrerPolicy="no-referrer"
-          className="w-full h-full object-cover rounded-full"
+          onError={() => {
+            console.error("Failed to load Ksu Portrait image:", portraitSrc);
+            setLoadError(true);
+          }}
+          className="w-full h-full object-cover rounded-full transition-transform duration-500 group-hover:scale-105"
         />
       ) : (
-        // Exquisite bespoke vector fashion-illustration representing her actual uploaded image:
-        // A circular red backplate, beautiful dark hair silhouette, off-shoulder black top, and elegant white fluffy collar/feather boa.
-        <div className="relative w-full h-full rounded-full overflow-hidden bg-[#BE1D35] flex items-center justify-center select-none">
-          {/* Subtle light/glow overlay within the red backdrop */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.15)_0%,_transparent_75%)]" />
-          
-          <svg
-            viewBox="0 0 100 100"
-            className="w-full h-full"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {/* Elegant shoulder silhouette (off-shoulder black top) */}
-            <path
-              d="M15 88 C20 75, 30 70, 50 70 C70 70, 80 75, 85 88"
-              fill="#11161D"
-              stroke="#090C10"
-              strokeWidth="0.5"
-            />
-            
-            {/* Elegant neck */}
-            <path
-              d="M42 50 L42 70 L58 70 L58 50 Z"
-              fill="#F9DEC9"
-              opacity="0.9"
-            />
-            
-            {/* Beautiful face/head shape */}
-            <path
-              d="M40 32 C40 22, 60 22, 60 32 C60 42, 60 52, 50 52 C40 52, 40 42, 40 32 Z"
-              fill="#FCD4B8"
-            />
-            
-            {/* Glamorous dark wet-look hairstyle shape */}
-            <path
-              d="M36 30 C36 12, 64 12, 64 30 C64 34, 60 32, 58 35 C56 38, 58 42, 52 40 C48 38, 46 42, 42 38 C38 34, 38 32, 36 30 Z"
-              fill="#090C10"
-            />
-            
-            {/* Extra sleek wet-look strand details */}
-            <path d="M42 18 Q35 25 38 35" stroke="#1E293B" strokeWidth="1.5" strokeLinecap="round" />
-            <path d="M58 18 Q65 25 62 35" stroke="#1E293B" strokeWidth="1.5" strokeLinecap="round" />
-            <path d="M50 14 Q52 26 44 32" stroke="#1E293B" strokeWidth="1" strokeLinecap="round" />
-
-            {/* Gorgeous fluffy white feather boa / shoulder collar draping elegantly */}
-            <path
-              d="M20 72 C12 76, 10 82, 18 85 C28 88, 72 88, 82 85 C90 82, 88 76, 80 72 C74 70, 68 75, 50 73 C32 71, 26 70, 20 72 Z"
-              fill="#F8FAFC"
-              stroke="#E2E8F0"
-              strokeWidth="0.5"
-            />
-            
-            {/* Feather texture circles to mimic fluffy fur look */}
-            <circle cx="20" cy="76" r="5" fill="#FFFFFF" opacity="0.9" />
-            <circle cx="30" cy="73" r="6" fill="#FFFFFF" opacity="0.95" />
-            <circle cx="45" cy="72" r="7" fill="#FFFFFF" />
-            <circle cx="55" cy="72" r="7" fill="#FFFFFF" />
-            <circle cx="70" cy="74" r="6" fill="#FFFFFF" opacity="0.95" />
-            <circle cx="80" cy="77" r="5" fill="#FFFFFF" opacity="0.9" />
-            <circle cx="25" cy="81" r="5.5" fill="#F1F5F9" />
-            <circle cx="38" cy="80" r="7" fill="#F1F5F9" />
-            <circle cx="50" cy="81" r="8" fill="#FFFFFF" />
-            <circle cx="62" cy="80" r="7" fill="#F1F5F9" />
-            <circle cx="75" cy="81" r="5.5" fill="#F1F5F9" />
-          </svg>
+        /* High-contrast clinical error interface if image fails to load (Requirement 6) */
+        <div className="absolute inset-0 bg-red-50 flex flex-col items-center justify-center p-6 text-center select-text z-50">
+          <AlertCircle className="w-10 h-10 text-red-600 mb-2" />
+          <span className="font-sans font-extrabold text-[#BE1D35] text-xs uppercase tracking-widest">
+            Portrait Load Error
+          </span>
+          <p className="font-sans text-[10px] text-slate-700 mt-1.5 max-w-[180px] leading-normal font-semibold">
+            Unable to render local build portrait. Click the camera icon below to upload a fresh image.
+          </p>
         </div>
       )}
+
+      {/* Elegant Hover Overlay & Upload Indicator */}
+      <button
+        onClick={triggerUpload}
+        className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center text-white z-20 cursor-pointer"
+        title="Upload fresh clinical portrait"
+      >
+        <Camera className="w-8 h-8 text-white mb-1.5 drop-shadow" />
+        <span className="font-sans text-[9px] tracking-widest font-bold uppercase text-white drop-shadow">
+          Change Photo
+        </span>
+      </button>
+
+      {/* Persistent mini camera pill on mobile (no hover required) */}
+      <button
+        onClick={triggerUpload}
+        className="absolute bottom-3 right-3 p-2 bg-clinical-crimson text-white rounded-full sm:hidden z-30 shadow-md hover:bg-[#A3182D] transition-colors border border-white cursor-pointer"
+        title="Upload photo"
+      >
+        <Camera className="w-3.5 h-3.5" />
+      </button>
     </div>
   );
 }
