@@ -125,7 +125,14 @@ export default function KsuPortrait({ className = "", type = "hero", aspectClass
           referrerPolicy="no-referrer"
           onError={() => {
             console.error("Failed to load Ksu Portrait image:", portraitSrc);
-            setLoadError(true);
+            if (portraitSrc !== ksuPortrait) {
+              console.log("Image from localStorage failed to load. Falling back to default compiled portrait...");
+              setPortraitSrc(ksuPortrait);
+              // Clean up corrupt/broken item in localStorage so it doesn't try again
+              localStorage.removeItem("ksu_portrait_real");
+            } else {
+              setLoadError(true);
+            }
           }}
           className="w-full h-full object-cover rounded-full transition-transform duration-500 group-hover:scale-105"
         />
