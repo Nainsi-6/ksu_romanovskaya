@@ -9,7 +9,14 @@ interface KsuPortraitProps {
 }
 
 export default function KsuPortrait({ className = "", type = "hero", aspectClass = "aspect-square" }: KsuPortraitProps) {
+  const FALLBACKS = [
+    ksuPortrait, // Tier 1: Hashed local webpack import
+    "/ksu_portrait_real.jpg", // Tier 2: Static build path route
+    "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=600&h=600" // Tier 3: High-availability premium fallback
+  ];
+
   const [portraitSrc, setPortraitSrc] = useState<string>(ksuPortrait);
+  const [fallbackIndex, setFallbackIndex] = useState<number>(0);
   const [loadError, setLoadError] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -24,35 +31,39 @@ export default function KsuPortrait({ className = "", type = "hero", aspectClass
       saved = null;
     }
     
-    // In dev mode, if the user had a custom uploaded photo in localStorage,
-    // sync it immediately to the local server disk so it is saved in ksu_portrait_real.jpg
-    if (saved && import.meta.env.DEV) {
-      console.log("[DEV] Found saved portrait in localStorage, syncing to server disk...");
-      fetch("/api/save-portrait", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: saved }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            console.log("[DEV] Successfully synced ksu_portrait_real.jpg to server disk!");
-            // Use the freshly synced base64 to ensure instant rendering
-            if (saved) setPortraitSrc(saved);
-          }
-        })
-        .catch((err) => {
-          console.error("[DEV] Failed to sync portrait to disk:", err);
-        });
-    } else if (saved) {
-      // In production / fallback, if they customized it on this device, let them see it
+    if (saved) {
       setPortraitSrc(saved);
+      setFallbackIndex(-1);
+      
+      // In dev mode, if the user had a custom uploaded photo in localStorage,
+      // sync it immediately to the local server disk so it is saved in ksu_portrait_real.jpg
+      if (import.meta.env.DEV) {
+        console.log("[DEV] Found saved portrait in localStorage, syncing to server disk...");
+        fetch("/api/save-portrait", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: saved }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              console.log("[DEV] Successfully synced ksu_portrait_real.jpg to server disk!");
+            }
+          })
+          .catch((err) => {
+            console.error("[DEV] Failed to sync portrait to disk:", err);
+          });
+      }
+    } else {
+      setPortraitSrc(ksuPortrait);
+      setFallbackIndex(0);
     }
 
     const handlePortraitUpdate = () => {
       const updated = localStorage.getItem("ksu_portrait_real");
       if (updated) {
         setPortraitSrc(updated);
+        setFallbackIndex(-1);
         setLoadError(false);
       }
     };
@@ -75,6 +86,7 @@ export default function KsuPortrait({ className = "", type = "hero", aspectClass
       // Save locally to localStorage so it is available across sessions on the device
       localStorage.setItem("ksu_portrait_real", base64Data);
       setPortraitSrc(base64Data);
+      setFallbackIndex(-1);
       setLoadError(false);
 
       // Instantly dispatch event
@@ -124,13 +136,25 @@ export default function KsuPortrait({ className = "", type = "hero", aspectClass
           alt="Ksu Romanovskaya clinical headshot"
           referrerPolicy="no-referrer"
           onError={() => {
-            console.error("Failed to load Ksu Portrait image:", portraitSrc);
-            if (portraitSrc !== ksuPortrait) {
-              console.log("Image from localStorage failed to load. Falling back to default compiled portrait...");
-              setPortraitSrc(ksuPortrait);
-              // Clean up corrupt/broken item in localStorage so it doesn't try again
+            console.warn("Failed to load portrait image source:", portraitSrc);
+            
+            // If the failure was a custom uploaded image from localStorage, clean it and try local import
+            if (fallbackIndex === -1) {
+              console.log("Custom localStorage image failed to load. Cleaning storage and falling back to default compiled portrait...");
               localStorage.removeItem("ksu_portrait_real");
+              setPortraitSrc(FALLBACKS[0]);
+              setFallbackIndex(0);
+              return;
+            }
+
+            // Otherwise, try the next fallback in sequence
+            const nextIndex = fallbackIndex + 1;
+            if (nextIndex < FALLBACKS.length) {
+              console.log(`Fallback index ${fallbackIndex} failed. Trying fallback index ${nextIndex}:`, FALLBACKS[nextIndex]);
+              setFallbackIndex(nextIndex);
+              setPortraitSrc(FALLBACKS[nextIndex]);
             } else {
+              console.error("All fallback portrait image sources failed to load.");
               setLoadError(true);
             }
           }}
